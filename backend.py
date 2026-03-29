@@ -1,3 +1,39 @@
+# ===============================
+# TEMPORARY ADMIN CREATION ROUTE
+# ===============================
+# SECURITY NOTE: This route is for one-time admin setup only. DELETE THIS ROUTE IMMEDIATELY after creating the admin account!
+@app.route('/create-admin', methods=['GET'])
+def create_admin():
+    """
+    TEMPORARY: Create initial admin user for Smart Laundry System.
+    SECURITY: DELETE THIS ROUTE AFTER USE!
+    """
+    admin_name = "Cedric Kimutai"
+    admin_email = "cedrickimutai@gmail.com"
+    admin_phone = "0718283361"
+    admin_password = "cedric7775"
+    admin_role = "admin"
+
+    conn = get_db_connection()
+    c = conn.cursor()
+    # Check if admin already exists by email
+    c.execute('SELECT id FROM users WHERE email = ?', (admin_email,))
+    if c.fetchone():
+        conn.close()
+        return "Admin already exists"
+
+    # Hash the password before storing
+    from werkzeug.security import generate_password_hash
+    hashed_password = generate_password_hash(admin_password)
+
+    # Insert admin user using parameterized query
+    c.execute('''
+        INSERT INTO users (name, email, phone, password, role)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (admin_name, admin_email, admin_phone, hashed_password, admin_role))
+    conn.commit()
+    conn.close()
+    return "Admin account created successfully!"
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
@@ -44,20 +80,43 @@ def init_db():
     conn = get_db_connection()
     c = conn.cursor()
     
-    # Users table
+    # --- MIGRATION: Ensure 'role' column exists in users table ---
+    # This block checks for the 'role' column and if missing, safely rebuilds the table with the correct schema.
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            name TEXT NOT NULL,
+            name TEXT,
+            email TEXT UNIQUE,
             phone TEXT,
-            address TEXT,
-            role TEXT DEFAULT 'customer' NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            password TEXT,
+            role TEXT DEFAULT 'user'
         )
     ''')
+    c.execute("PRAGMA table_info(users)")
+    columns = [row[1] for row in c.fetchall()]
+    if 'role' not in columns:
+        print("[MIGRATION] Migrating users table to include role column...")
+        # 1. Create new table with correct schema
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS users_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                email TEXT UNIQUE,
+                phone TEXT,
+                password TEXT,
+                role TEXT DEFAULT 'user'
+            )
+        ''')
+        # 2. Copy data from old table, set role to 'user' for all
+        c.execute('''
+            INSERT INTO users_new (id, name, email, phone, password, role)
+            SELECT id, name, email, phone, password, 'user' FROM users
+        ''')
+        # 3. Drop old users table
+        c.execute('DROP TABLE users')
+        # 4. Rename new table to users
+        c.execute('ALTER TABLE users_new RENAME TO users')
+        print("[MIGRATION] Users table rebuilt with role column.")
     
     # Services table
     c.execute('''

@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="styles.css" />
     <style>
       .dashboard-container {
-        max-width: 1200px;
+        max-width: 98vw;
         margin: 0 auto;
-        padding: 20px;
+        padding: 20px 2vw;
       }
 
       .dashboard-header {
@@ -495,54 +495,71 @@
     <nav class="navbar">
       <h1>Smart Laundry</h1>
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/#services">Services</a></li>
-        <li id="dashboardNav" style="display: none">
-          <a href="/dashboard.html">📊 Dashboard</a>
-        </li>
-        <li
-          id="profileDropdownNav"
-          style="display: none"
-          class="profile-dropdown"
-        >
-          <button
-            class="navbar a profile-dropdown-btn"
-            id="profileDropdownBtn"
-            onclick="toggleProfileDropdown()"
-          >
-            👤 <span id="profileDropdownName">Profile</span>
-          </button>
-          <div class="profile-dropdown-menu" id="profileDropdownMenu">
-            <div class="profile-dropdown-header">
-              <h3 id="profileDropdownTitle">Your Profile</h3>
-              <p id="profileDropdownEmail">email@example.com</p>
-            </div>
-            <div class="profile-dropdown-content">
-              <div class="profile-dropdown-item">
-                <strong>Name:</strong>
-                <span id="profileDropdownNameVal">-</span>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#services">Services</a></li>
+          <li id="dashboardNav" style="display: none">
+            <a href="/dashboard.html">📊 Dashboard</a>
+          </li>
+          <li id="profileDropdownNav" style="display: none" class="profile-dropdown">
+            <button class="navbar a profile-dropdown-btn" id="profileDropdownBtn" onclick="toggleProfileDropdown()">
+              👤 <span id="profileDropdownName">Profile</span>
+            </button>
+            <div class="profile-dropdown-menu" id="profileDropdownMenu">
+              <div class="profile-dropdown-header">
+                <h3 id="profileDropdownTitle">Your Profile</h3>
+                <p id="profileDropdownEmail">email@example.com</p>
               </div>
-              <div class="profile-dropdown-item">
-                <strong>Phone:</strong>
-                <span id="profileDropdownPhoneVal">-</span>
+              <div class="profile-dropdown-content">
+                <div class="profile-dropdown-item">
+                  <strong>Name:</strong>
+                  <span id="profileDropdownNameVal">-</span>
+                </div>
+                <div class="profile-dropdown-item">
+                  <strong>Phone:</strong>
+                  <span id="profileDropdownPhoneVal">-</span>
+                </div>
+                <div class="profile-dropdown-item">
+                  <strong>Address:</strong>
+                  <span id="profileDropdownAddressVal">-</span>
+                </div>
+                <div class="profile-dropdown-item">
+                  <strong>Member Since:</strong>
+                  <span id="profileDropdownDateVal">-</span>
+                </div>
               </div>
-              <div class="profile-dropdown-item">
-                <strong>Address:</strong>
-                <span id="profileDropdownAddressVal">-</span>
-              </div>
-              <div class="profile-dropdown-item">
-                <strong>Member Since:</strong>
-                <span id="profileDropdownDateVal">-</span>
+              <div class="profile-dropdown-footer">
+                <button class="profile-logout-btn" onclick="logoutFromNav()">
+                  🚪 Logout
+                </button>
               </div>
             </div>
-            <div class="profile-dropdown-footer">
-              <button class="profile-logout-btn" onclick="logoutFromNav()">
-                🚪 Logout
-              </button>
-            </div>
-          </div>
-        </li>
+          </li>
       </ul>
+      </nav>
+      <style>
+        .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .nav-links {
+          display: flex;
+          flex-direction: row;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .nav-links li {
+          margin: 0 10px;
+        }
+        @media (max-width: 768px) {
+          .nav-links {
+            flex-direction: column;
+            width: 100%;
+          }
+        }
+      </style>
     </nav>
 
     <div class="dashboard-container container">
@@ -563,6 +580,41 @@
 
           <div id="bookingsContainer">
             <div class="loading">
+      <section class="hero">
+        <h1>Welcome, <span id="userName">User</span>!</h1>
+        <p>Track your laundry orders and manage your account.</p>
+      </section>
+      <style>
+        .hero {
+          width: 100%;
+          max-width: 100vw;
+          padding: 60px 0 30px 0;
+          text-align: center;
+          box-sizing: border-box;
+        }
+        .hero h1 {
+          font-size: 2.2rem;
+          margin-bottom: 16px;
+          word-break: break-word;
+        }
+        .hero p {
+          font-size: 1.1rem;
+          margin-bottom: 24px;
+          word-break: break-word;
+        }
+        @media (max-width: 600px) {
+          .hero {
+            padding: 30px 0 10px 0;
+            text-align: left;
+          }
+          .hero h1 {
+            font-size: 1.5rem;
+          }
+          .hero p {
+            font-size: 1rem;
+          }
+        }
+      </style>
               <div class="spinner"></div>
               <p>Loading bookings...</p>
             </div>

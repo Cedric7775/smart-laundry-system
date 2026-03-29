@@ -23,8 +23,8 @@
         border-radius: 10px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         width: 100%;
-        max-width: 400px;
-        padding: 40px;
+        max-width: 98vw;
+        padding: 40px 2vw;
       }
 
       .auth-card h2 {
@@ -141,6 +141,38 @@
   </head>
   <body>
     <div class="auth-container container">
+      <nav class="navbar">
+        <div class="logo">MyBooking</div>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="auth.html">Login</a>
+        </div>
+      </nav>
+      <style>
+        .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .nav-links {
+          display: flex;
+          flex-direction: row;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .nav-links a {
+          margin: 0 10px;
+        }
+        @media (max-width: 768px) {
+          .nav-links {
+            flex-direction: column;
+            width: 100%;
+          }
+        }
+      </style>
       <div class="auth-card">
         <!-- Login Form -->
         <div id="loginForm" class="form-section">

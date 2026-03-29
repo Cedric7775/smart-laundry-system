@@ -22,7 +22,7 @@
       }
 
       .container {
-        max-width: 1200px;
+        max-width: 98vw;
         margin: 0 auto;
       }
 
@@ -820,52 +820,80 @@
           </div>
         </div>
         <div class="table-container">
-          <table id="bookings-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Customer</th>
-                <th>Phone</th>
-                <th>Service</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="bookings-body">
-              <tr>
-                <td colspan="9" class="empty">Loading bookings...</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table id="bookings-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Service</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-body">
+                <tr>
+                  <td colspan="9" class="empty">Loading bookings...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <style>
+            .table-responsive {
+              width: 100%;
+              overflow-x: auto;
+              -webkit-overflow-scrolling: touch;
+              max-width: 100vw;
+            }
+            table {
+              width: 100%;
+              min-width: 600px;
+              border-collapse: collapse;
+              background: #fff;
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+              border-radius: 8px;
+              overflow-x: auto;
+              display: block;
+            }
+            @media (max-width: 600px) {
+              table {
+                min-width: 400px;
+                font-size: 0.95rem;
+              }
+            }
+          </style>
         </div>
       </div>
 
       <!-- Insights Tab (Contacts) -->
       <div id="insights" class="tab-content">
         <div class="table-container">
-          <table id="contacts-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Service</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="contacts-body">
-              <tr>
-                <td colspan="9" class="empty">Loading messages...</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table id="contacts-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Service</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contacts-body">
+                <tr>
+                  <td colspan="9" class="empty">Loading messages...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
