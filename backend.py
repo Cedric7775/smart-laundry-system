@@ -4,15 +4,15 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
-import sqlite3
-import json
-from datetime import datetime, timedelta
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +28,41 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
+
+# Initialize SQLAlchemy and Migrate
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "laundry.db")}')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# Define SQLAlchemy ORM models
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(15), nullable=False)
+    role = db.Column(db.String(50), default='customer')
+
+class Booking(db.Model):
+    __tablename__ = 'bookings'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    notes = db.Column(db.Text)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Contact(db.Model):
+    __tablename__ = 'contacts'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(15), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 # ===============================
 # TEMPORARY ADMIN CREATION ROUTE
 # ===============================
@@ -43,14 +78,6 @@ def create_admin():
     admin_phone = "0718283361"
     admin_password = "cedric7775"
     admin_role = "admin"
-
-    conn = get_db_connection()
-    c = conn.cursor()
-    # Check if admin already exists by email
-    c.execute('SELECT id FROM users WHERE email = ?', (admin_email,))
-    if c.fetchone():
-        conn.close()
-        return "Admin already exists"
 
     # Hash the password before storing
     hashed_password = generate_password_hash(admin_password)
@@ -80,15 +107,11 @@ def get_db_connection():
 
 def init_db():
     """Initialize database with tables"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # --- MIGRATION: Ensure 'role' column exists in users table ---
-    # This block checks for the 'role' column and if missing, safely rebuilds the table with the correct schema.
     try:
         conn = get_db_connection()
         c = conn.cursor()
-        # Create users table if it does not exist (safe, non-destructive)
+
+        # Create users table
         c.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,76 +122,88 @@ def init_db():
                 role TEXT DEFAULT 'customer'
             )
         ''')
+
+        # Create services table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS services (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT,
+                price_per_item REAL NOT NULL,
+                turnaround_days INTEGER DEFAULT 1,
+                is_active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Create addresses table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS addresses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                label TEXT,
+                address TEXT NOT NULL,
+                phone TEXT,
+                is_default INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+
+        # Create bookings table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS bookings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                name TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                location TEXT NOT NULL,
+                service TEXT NOT NULL,
+                quantity INTEGER,
+                price REAL,
+                delivery_date TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+
+        # Create order_status_logs table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS order_status_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                booking_id INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                notes TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (booking_id) REFERENCES bookings(id)
+            )
+        ''')
+
+        # Create contacts table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS contacts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                email TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        conn.commit()
+        print("✅ Database initialized successfully")
+
+    except sqlite3.ProgrammingError as e:
+        print("❌ SQLite Programming Error:", e)
+
     except Exception as e:
-        print("Database connection error:", e)
+        print("❌ Unexpected Error:", e)
+
     finally:
-        conn.close()
-
-    # Create other tables if not exist
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
-            description TEXT,
-            price_per_item REAL NOT NULL,
-            turnaround_days INTEGER DEFAULT 1,
-            is_active INTEGER DEFAULT 1,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS addresses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            label TEXT,
-            address TEXT NOT NULL,
-            phone TEXT,
-            is_default INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS bookings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            name TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            location TEXT NOT NULL,
-            service TEXT NOT NULL,
-            quantity INTEGER,
-            price REAL,
-            delivery_date TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS order_status_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            booking_id INTEGER NOT NULL,
-            status TEXT NOT NULL,
-            notes TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES bookings(id)
-        )
-    ''')
-
-    # Contact submissions table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS contacts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            email TEXT NOT NULL,
-            message TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
-    print("✅ Database initialized successfully")
+        if conn:
+            conn.close()
 
 # Initialize database on startup - always run init_db to ensure tables exist
 init_db()
@@ -253,15 +288,6 @@ def register():
         # Validate password strength
         if len(password) < 6:
             return jsonify({'error': 'Password must be at least 6 characters'}), 400
-        
-        conn = get_db_connection()
-        c = conn.cursor()
-        
-        # Check if user already exists
-        c.execute('SELECT id FROM users WHERE email = ?', (email,))
-        if c.fetchone():
-            conn.close()
-            return jsonify({'error': 'Email already registered'}), 400
         
         # Hash password
         hashed_password = generate_password_hash(password)
@@ -1233,7 +1259,7 @@ def home():
                 'GET': '/api/bookings/<id> - Get booking details',
                 'PATCH': '/api/bookings/<id> - Update booking status',
                 'GET': '/api/bookings/<id>/status-logs - Get order status history',
-                'POST': '/api/bookings/<id>/status-logs - Log status update'
+                'POST': '/api/bookings/<id>/status-logs - Log status'
             },
             'contacts': {
                 'POST': '/api/contacts - Submit contact form',
