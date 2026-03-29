@@ -1,0 +1,1771 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Smart Laundry - Admin Panel</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        background: white;
+        padding: 24px 30px;
+        border-radius: 12px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      h1 {
+        color: #2d3748;
+        margin-bottom: 12px;
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .status {
+        font-size: 14px;
+        color: #666;
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
+        header {
+          padding: 18px 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        th {
+          padding: 12px 10px;
+          font-size: 12px;
+        }
+
+        td {
+          padding: 12px 10px;
+          font-size: 13px;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .tab-btn {
+          padding: 10px 16px;
+          font-size: 12px;
+        }
+
+        .action-btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        /* Responsive filters */
+        [style*="grid-template-columns: repeat(auto-fit"] {
+          grid-template-columns: 1fr !important;
+        }
+
+        /* Make table scrollable on mobile */
+        .table-container {
+          overflow-x: auto;
+        }
+
+        table {
+          min-width: 600px;
+        }
+      }
+
+      .tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .tab-btn {
+        padding: 12px 24px;
+        border: none;
+        background: white;
+        color: #667eea;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: 2px solid #667eea;
+      }
+
+      .tab-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: #f8f9fa;
+        padding: 18px 15px;
+        text-align: left;
+        font-weight: 700;
+        color: #2d3748;
+        border-bottom: 2px solid #667eea;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 16px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+        color: #4a5568;
+      }
+
+      tr:hover {
+        background: #f9fafb;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .badge-booked {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        color: #374151;
+        border: 1px solid #d1d5db;
+      }
+
+      .badge-assigned {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+      }
+
+      .badge-on_transit {
+        background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+        color: #92400e;
+        border: 1px solid #f97316;
+      }
+
+      .badge-delivered {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #166534;
+        border: 1px solid #22c55e;
+      }
+
+      .badge-new {
+        background: linear-gradient(135deg, #ffe6e6 0%, #ff9999 100%);
+        color: #8b0000;
+        border: 1px solid #ff6666;
+      }
+
+      .badge-responded {
+        background: linear-gradient(135deg, #ffe6cc 0%, #ffcc99 100%);
+        color: #8b5a00;
+        border: 1px solid #ffb366;
+      }
+
+      .badge-resolved {
+        background: linear-gradient(135deg, #e6ffe6 0%, #99ff99 100%);
+        color: #004d00;
+        border: 1px solid #66ff66;
+      }
+
+      .message {
+        max-width: 250px;
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: block;
+      }
+
+      .action-btn {
+        padding: 8px 16px;
+        margin: 4px 4px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .action-btn:active {
+        transform: translateY(0);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 26px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        border-top: 4px solid #667eea;
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-number {
+        font-size: 40px;
+        font-weight: 800;
+        color: #667eea;
+        margin: 12px 0;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .empty {
+        padding: 40px;
+        text-align: center;
+        color: #999;
+        font-weight: 600;
+      }
+
+      .refresh-btn {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      .refresh-btn:active {
+        transform: translateY(0);
+      }
+
+      .date-col {
+        font-size: 12px;
+        color: #999;
+        white-space: nowrap;
+      }
+
+      .message {
+        max-width: 250px;
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: block;
+      }
+
+      /* Chart Styles */
+      .charts-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .chart-card {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-top: 4px solid #667eea;
+      }
+
+      .chart-card h4 {
+        color: #2d3748;
+        font-size: 18px;
+        margin-bottom: 20px;
+        font-weight: 700;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 280px;
+        margin-bottom: 12px;
+      }
+
+      canvas {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .chart-legend {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+
+      /* Percentage Indicator */
+      .stat-change {
+        font-size: 12px;
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      .stat-change.positive {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .stat-change.negative {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .stat-change.neutral {
+        background: #f0f9ff;
+        color: #0c4a6e;
+      }
+
+      /* Service Popularity Chart */
+      .service-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .service-bar-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .service-label {
+        min-width: 100px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .service-bar-container {
+        flex: 1;
+        height: 24px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .service-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 8px;
+      }
+
+      .service-count {
+        font-size: 12px;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 1024px) {
+        .charts-section {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .charts-section {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+          height: 200px;
+        }
+
+        .chart-card h4 {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container container">
+      <header class="navbar" style="padding: 18px 5vw">
+        <h1>📋 Smart Laundry Admin Panel</h1>
+        <ul
+          style="
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: center;
+          "
+        >
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/auth.html">Logout</a></li>
+        </ul>
+        <div
+          class="status"
+          style="
+            margin-left: auto;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+          "
+        >
+          Backend:
+          <span id="backend-status" style="color: red">Connecting...</span>
+        </div>
+        <div style="margin-top: 15px">
+          <button class="refresh-btn" onclick="refreshData()">
+            🔄 Refresh Data
+          </button>
+        </div>
+      </header>
+
+      <!-- Analytics Section -->
+      <div style="margin-bottom: 32px">
+        <h2
+          style="
+            color: white;
+            font-size: 20px;
+            margin-bottom: 16px;
+            font-weight: 700;
+          "
+        >
+          📊 Business Analytics
+        </h2>
+
+        <!-- Main Statistics -->
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-label">Total Bookings</div>
+            <div class="stat-number" id="total-bookings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Awaiting Assignment</div>
+            <div class="stat-number" id="pending-bookings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-number" id="completed-bookings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">In Transit</div>
+            <div class="stat-number" id="cancelled-bookings">0</div>
+          </div>
+        </div>
+
+        <!-- Revenue & Time Analytics -->
+        <div class="stats" style="margin-top: 20px">
+          <div class="stat-card">
+            <div class="stat-label">Estimated Revenue</div>
+            <div
+              class="stat-number"
+              id="estimated-revenue"
+              style="font-size: 32px; color: #22c55e"
+            >
+              AED 0
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Today's Bookings</div>
+            <div class="stat-number" id="today-bookings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">This Week's Bookings</div>
+            <div class="stat-number" id="week-bookings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Customers</div>
+            <div class="stat-number" id="active-customers">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Insights -->
+      <div
+        style="
+          background: white;
+          padding: 24px;
+          border-radius: 12px;
+          margin-bottom: 32px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <h3 style="color: #2d3748; margin-bottom: 16px; font-weight: 700">
+          💡 Business Insights
+        </h3>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+          "
+        >
+          <div>
+            <div
+              style="
+                font-size: 13px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+              "
+            >
+              Most Popular Service
+            </div>
+            <div
+              style="font-size: 20px; color: #667eea; font-weight: 700"
+              id="popular-service"
+            >
+              -
+            </div>
+          </div>
+          <div>
+            <div
+              style="
+                font-size: 13px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+              "
+            >
+              Peak Booking Day
+            </div>
+            <div
+              style="font-size: 20px; color: #667eea; font-weight: 700"
+              id="peak-day"
+            >
+              -
+            </div>
+          </div>
+          <div>
+            <div
+              style="
+                font-size: 13px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+              "
+            >
+              Average Booking Value
+            </div>
+            <div
+              style="font-size: 20px; color: #667eea; font-weight: 700"
+              id="avg-value"
+            >
+              AED 0
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Section -->
+      <div style="margin-bottom: 32px">
+        <h2
+          style="
+            color: white;
+            font-size: 20px;
+            margin-bottom: 16px;
+            font-weight: 700;
+          "
+        >
+          📈 Trends & Performance
+        </h2>
+        <div class="charts-section">
+          <!-- Daily Bookings Chart -->
+          <div class="chart-card">
+            <h4>📊 Daily Bookings (Last 7 Days)</h4>
+            <div class="chart-container">
+              <canvas id="dailyBookingsChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #667eea"></div>
+                <span>Bookings</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #22c55e"></div>
+                <span>Completed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Revenue Trend Chart -->
+          <div class="chart-card">
+            <h4>💰 Revenue Trend (Last 7 Days)</h4>
+            <div class="chart-container">
+              <canvas id="revenueChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #22c55e"></div>
+                <span>Daily Revenue (AED)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Popularity Chart -->
+          <div class="chart-card">
+            <h4>⭐ Service Popularity</h4>
+            <div id="servicePopularityChart" class="service-bars"></div>
+          </div>
+
+          <!-- Weekly Comparison -->
+          <div class="chart-card">
+            <h4>📋 Weekly Comparison</h4>
+            <div class="chart-container">
+              <canvas id="weeklyComparisonChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #667eea"></div>
+                <span>This Week</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #cbd5e1"></div>
+                <span>Last Week</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('bookings')">
+          📦 Bookings
+        </button>
+        <button class="tab-btn" onclick="switchTab('insights')">
+          🎯 Contact Messages
+        </button>
+      </div>
+
+      <!-- Bookings Tab -->
+      <div id="bookings" class="tab-content active">
+        <!-- Filter & Search Controls -->
+        <div
+          style="
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <div>
+            <label
+              style="
+                display: block;
+                font-size: 12px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+              "
+              >Filter by Status</label
+            >
+            <select
+              id="statusFilter"
+              onchange="filterBookings()"
+              style="
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                font-size: 14px;
+              "
+            >
+              <option value="">All Bookings</option>
+              <option value="booked">Booked</option>
+              <option value="assigned">Assigned</option>
+              <option value="on_transit">On Transit</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="
+                display: block;
+                font-size: 12px;
+                color: #666;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+              "
+              >Search</label
+            >
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search ID or Name..."
+              onkeyup="filterBookings()"
+              style="
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                font-size: 14px;
+              "
+            />
+          </div>
+        </div>
+        <div class="table-container">
+          <table id="bookings-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Service</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-body">
+              <tr>
+                <td colspan="9" class="empty">Loading bookings...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Insights Tab (Contacts) -->
+      <div id="insights" class="tab-content">
+        <div class="table-container">
+          <table id="contacts-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Service</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-body">
+              <tr>
+                <td colspan="9" class="empty">Loading messages...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Dynamic API URL - works for both local dev and production
+      const API_BASE_URL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+          ? "http://localhost:5000/api"
+          : `${window.location.protocol}//${window.location.host}/api`;
+
+      // Check backend connection
+      async function checkBackend() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/health`);
+          if (response.ok) {
+            document.getElementById("backend-status").textContent =
+              "✅ Connected";
+            document.getElementById("backend-status").style.color = "green";
+            return true;
+          }
+        } catch (error) {
+          document.getElementById("backend-status").textContent =
+            "❌ Disconnected";
+          document.getElementById("backend-status").style.color = "red";
+          return false;
+        }
+      }
+
+      // Check authentication and admin role
+      async function checkAdminAccess() {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          alert("❌ Authentication required. Please login first.");
+          window.location.href = "/auth.html";
+          return false;
+        }
+
+        try {
+          // Verify token and get role
+          const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            alert("❌ Authentication failed. Please login again.");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+            window.location.href = "/auth.html";
+            return false;
+          }
+
+          const data = await response.json();
+          const user = data.user;
+
+          // Check if user is admin
+          if (user.role !== "admin") {
+            alert(
+              "❌ Admin access required. You do not have permission to access this page.",
+            );
+            window.location.href = "/";
+            return false;
+          }
+
+          return true;
+        } catch (error) {
+          console.error("Authentication check error:", error);
+          alert("❌ Authentication error. Please try again.");
+          window.location.href = "/auth.html";
+          return false;
+        }
+      }
+
+      // Global bookings storage
+      let allBookings = [];
+      let previousWeekBookings = []; // Store for comparison
+
+      // ===== DATA PROCESSING FUNCTIONS =====
+
+      // Get last 7 days of bookings grouped by day
+      function getBookingsByDay(bookings) {
+        const days = {};
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split("T")[0];
+          const dayName = date.toLocaleDateString("en-US", {
+            weekday: "short",
+          });
+          days[dateStr] = {
+            date: dateStr,
+            day: dayName,
+            total: 0,
+            completed: 0,
+          };
+        }
+
+        bookings.forEach((b) => {
+          const dateStr = new Date(b.created_at).toISOString().split("T")[0];
+          if (days[dateStr]) {
+            days[dateStr].total++;
+            if (b.status === "delivered") days[dateStr].completed++;
+          }
+        });
+
+        return Object.values(days);
+      }
+
+      // Get revenue by day (last 7 days)
+      function getRevenueByDay(bookings) {
+        const days = {};
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split("T")[0];
+          const dayName = date.toLocaleDateString("en-US", {
+            weekday: "short",
+          });
+          days[dateStr] = { date: dateStr, day: dayName, revenue: 0 };
+        }
+
+        bookings
+          .filter((b) => b.status === "delivered")
+          .forEach((b) => {
+            const dateStr = new Date(b.created_at).toISOString().split("T")[0];
+            if (days[dateStr]) {
+              days[dateStr].revenue += b.price * (b.quantity || 1);
+            }
+          });
+
+        return Object.values(days);
+      }
+
+      // Get top services with counts
+      function getTopServices(bookings, limit = 5) {
+        const serviceCounts = {};
+        bookings.forEach((b) => {
+          serviceCounts[b.service] = (serviceCounts[b.service] || 0) + 1;
+        });
+        return Object.entries(serviceCounts)
+          .map(([service, count]) => ({ service, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, limit);
+      }
+
+      // Calculate weekly comparison (this week vs last week)
+      function getWeeklyComparison(bookings) {
+        const today = new Date();
+        const thisWeekStart = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - today.getDay(),
+        );
+        const lastWeekStart = new Date(thisWeekStart);
+        lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+        const dayStats = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+          (day) => ({
+            day,
+            thisWeek: 0,
+            lastWeek: 0,
+          }),
+        );
+
+        bookings.forEach((b) => {
+          const bookingDate = new Date(b.created_at);
+          const dayOfWeek = bookingDate.getDay();
+
+          if (
+            bookingDate >= thisWeekStart &&
+            bookingDate <
+              new Date(thisWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000)
+          ) {
+            dayStats[dayOfWeek].thisWeek++;
+          } else if (
+            bookingDate >= lastWeekStart &&
+            bookingDate < thisWeekStart
+          ) {
+            dayStats[dayOfWeek].lastWeek++;
+          }
+        });
+
+        return dayStats;
+      }
+
+      // ===== CHART DRAWING FUNCTIONS =====
+
+      // Draw daily bookings chart
+      function drawDailyBookingsChart(bookings) {
+        const canvas = document.getElementById("dailyBookingsChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const byDay = getBookingsByDay(bookings);
+
+        // Set canvas size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 250;
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = 40;
+        const chartWidth = w - padding * 2;
+        const chartHeight = h - padding * 2;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+
+        // Get max value
+        const maxVal = Math.max(...byDay.map((d) => d.total), 1);
+
+        // Draw bars
+        byDay.forEach((day, i) => {
+          const barWidth = chartWidth / byDay.length;
+          const barX = padding + i * barWidth + barWidth * 0.1;
+          const barWidth2 = barWidth * 0.4;
+
+          // Total bookings (blue)
+          const totalHeight = (day.total / maxVal) * chartHeight;
+          ctx.fillStyle = "#667eea";
+          ctx.fillRect(barX, h - padding - totalHeight, barWidth2, totalHeight);
+
+          // Completed bookings (green)
+          const completedHeight = (day.completed / maxVal) * chartHeight;
+          ctx.fillStyle = "#22c55e";
+          ctx.fillRect(
+            barX + barWidth2 + 4,
+            h - padding - completedHeight,
+            barWidth2,
+            completedHeight,
+          );
+
+          // Day label
+          ctx.fillStyle = "#666";
+          ctx.font = "12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(day.day, barX + barWidth2 + 2, h - padding + 20);
+
+          // Y-axis value
+          if (day.total > 0) {
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(
+              day.total,
+              barX + barWidth2 + 2,
+              h - padding - totalHeight - 8,
+            );
+          }
+        });
+
+        // Draw axes
+        ctx.strokeStyle = "#ddd";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, h - padding);
+        ctx.lineTo(w - padding, h - padding);
+        ctx.stroke();
+      }
+
+      // Draw revenue trend chart
+      function drawRevenueChart(bookings) {
+        const canvas = document.getElementById("revenueChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const byDay = getRevenueByDay(bookings);
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 250;
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = 40;
+        const chartWidth = w - padding * 2;
+        const chartHeight = h - padding * 2;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+
+        const maxVal = Math.max(...byDay.map((d) => d.revenue), 1);
+
+        // Draw bars
+        byDay.forEach((day, i) => {
+          const barWidth = chartWidth / byDay.length;
+          const barX = padding + i * barWidth + barWidth * 0.2;
+          const barWidth2 = barWidth * 0.6;
+
+          const barHeight = (day.revenue / maxVal) * chartHeight;
+          ctx.fillStyle = "#22c55e";
+          ctx.fillRect(barX, h - padding - barHeight, barWidth2, barHeight);
+
+          // Day label
+          ctx.fillStyle = "#666";
+          ctx.font = "12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(day.day, barX + barWidth2 / 2, h - padding + 20);
+
+          // Value label (in thousands for space)
+          if (day.revenue > 0) {
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "center";
+            const label =
+              day.revenue > 999
+                ? `${(day.revenue / 1000).toFixed(1)}K`
+                : day.revenue;
+            ctx.fillText(
+              `AED ${label}`,
+              barX + barWidth2 / 2,
+              h - padding - barHeight - 8,
+            );
+          }
+        });
+
+        // Draw axes
+        ctx.strokeStyle = "#ddd";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, h - padding);
+        ctx.lineTo(w - padding, h - padding);
+        ctx.stroke();
+      }
+
+      // Draw service popularity chart (horizontal bars)
+      function drawServicePopularityChart(bookings) {
+        const container = document.getElementById("servicePopularityChart");
+        if (!container) return;
+        const services = getTopServices(bookings, 5);
+        const maxCount = Math.max(...services.map((s) => s.count), 1);
+
+        container.innerHTML = services
+          .map((service) => {
+            const percentage = (service.count / maxCount) * 100;
+            return `
+          <div class="service-bar-item">
+            <div class="service-label">${service.service}</div>
+            <div class="service-bar-container">
+              <div class="service-bar-fill" style="width: ${percentage}%;">
+                <span class="service-count">${service.count}</span>
+              </div>
+            </div>
+          </div>
+        `;
+          })
+          .join("");
+      }
+
+      // Draw weekly comparison chart
+      function drawWeeklyComparisonChart(bookings) {
+        const canvas = document.getElementById("weeklyComparisonChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const comparison = getWeeklyComparison(bookings);
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 250;
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = 40;
+        const chartWidth = w - padding * 2;
+        const chartHeight = h - padding * 2;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+
+        const maxVal = Math.max(
+          ...comparison.map((d) => Math.max(d.thisWeek, d.lastWeek)),
+          1,
+        );
+
+        // Draw bars for each day
+        comparison.forEach((day, i) => {
+          const groupWidth = chartWidth / comparison.length;
+          const barSpace = groupWidth * 0.15;
+          const barWidth = (groupWidth - barSpace) / 2;
+          const barX = padding + i * groupWidth + barSpace / 2;
+
+          // This week (blue)
+          const thisWeekHeight = (day.thisWeek / maxVal) * chartHeight;
+          ctx.fillStyle = "#667eea";
+          ctx.fillRect(
+            barX,
+            h - padding - thisWeekHeight,
+            barWidth,
+            thisWeekHeight,
+          );
+
+          // Last week (gray)
+          const lastWeekHeight = (day.lastWeek / maxVal) * chartHeight;
+          ctx.fillStyle = "#cbd5e1";
+          ctx.fillRect(
+            barX + barWidth,
+            h - padding - lastWeekHeight,
+            barWidth,
+            lastWeekHeight,
+          );
+
+          // Day label
+          ctx.fillStyle = "#666";
+          ctx.font = "12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(day.day, barX + barWidth, h - padding + 20);
+        });
+
+        // Draw axes
+        ctx.strokeStyle = "#ddd";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, h - padding);
+        ctx.lineTo(w - padding, h - padding);
+        ctx.stroke();
+      }
+
+      // Add percentage change indicator to stat
+      function addPercentageIndicator(elementId, currentValue, previousValue) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const change = currentValue - previousValue;
+        const percentChange =
+          previousValue > 0 ? ((change / previousValue) * 100).toFixed(1) : 0;
+
+        let className = "neutral";
+        let symbol = "→";
+        let text = `${percentChange}%`;
+
+        if (percentChange > 0) {
+          className = "positive";
+          symbol = "↑";
+        } else if (percentChange < 0) {
+          className = "negative";
+          symbol = "↓";
+          text = `${Math.abs(percentChange)}%`;
+        }
+
+        // Create or update the change indicator
+        let changeEl = element.parentElement.querySelector(".stat-change");
+        if (!changeEl) {
+          changeEl = document.createElement("div");
+          changeEl.className = `stat-change ${className}`;
+          element.parentElement.appendChild(changeEl);
+        }
+
+        changeEl.className = `stat-change ${className}`;
+        changeEl.innerHTML = `${symbol} ${text} vs last week`;
+      }
+
+      // ===== ANALYTICS FUNCTIONS =====
+
+      function calculateAnalytics(bookings) {
+        // Count by status
+        const statuses = {
+          booked: bookings.filter((b) => b.status === "booked").length,
+          assigned: bookings.filter((b) => b.status === "assigned").length,
+          delivered: bookings.filter((b) => b.status === "delivered").length,
+          on_transit: bookings.filter((b) => b.status === "on_transit").length,
+        };
+
+        // Update status cards - rename for clarity
+        document.getElementById("total-bookings").textContent = bookings.length;
+        document.getElementById("pending-bookings").textContent =
+          statuses.booked;
+        document.getElementById("completed-bookings").textContent =
+          statuses.delivered;
+        document.getElementById("cancelled-bookings").textContent =
+          statuses.assigned + statuses.on_transit;
+
+        // Calculate revenue (from delivered bookings only)
+        const revenue = bookings
+          .filter((b) => b.status === "delivered")
+          .reduce((sum, b) => sum + (b.price * b.quantity || 0), 0);
+        document.getElementById("estimated-revenue").textContent =
+          `AED ${revenue.toLocaleString()}`;
+
+        // Calculate today's bookings
+        const today = new Date().toISOString().split("T")[0];
+        const todayCount = bookings.filter((b) => {
+          const bookingDate = new Date(b.created_at)
+            .toISOString()
+            .split("T")[0];
+          return bookingDate === today;
+        }).length;
+        document.getElementById("today-bookings").textContent = todayCount;
+
+        // Calculate this week's bookings
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekCount = bookings.filter((b) => {
+          const bookingDate = new Date(b.created_at);
+          return bookingDate >= weekAgo;
+        }).length;
+        document.getElementById("week-bookings").textContent = weekCount;
+
+        // Calculate active customers (unique names)
+        const uniqueCustomers = new Set(
+          bookings.map((b) => b.name || b.user_id),
+        ).size;
+        document.getElementById("active-customers").textContent =
+          uniqueCustomers;
+
+        // Calculate percentage changes vs previous week
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+        const prevWeekBookings = bookings.filter((b) => {
+          const bookingDate = new Date(b.created_at);
+          return bookingDate >= twoWeeksAgo && bookingDate < weekAgo;
+        }).length;
+
+        const prevWeekDelivered = bookings.filter((b) => {
+          const bookingDate = new Date(b.created_at);
+          return (
+            b.status === "delivered" &&
+            bookingDate >= twoWeeksAgo &&
+            bookingDate < weekAgo
+          );
+        }).length;
+
+        const prevWeekRevenue = bookings
+          .filter(
+            (b) =>
+              b.status === "delivered" &&
+              new Date(b.created_at) >= twoWeeksAgo &&
+              new Date(b.created_at) < weekAgo,
+          )
+          .reduce((sum, b) => sum + (b.price * b.quantity || 0), 0);
+
+        // Add percentage indicators
+        addPercentageIndicator("week-bookings", weekCount, prevWeekBookings);
+        addPercentageIndicator(
+          "completed-bookings",
+          statuses.delivered,
+          prevWeekDelivered,
+        );
+        addPercentageIndicator("estimated-revenue", revenue, prevWeekRevenue);
+      }
+
+      function calculateBusinessInsights(bookings) {
+        // Most popular service
+        const serviceCounts = {};
+        bookings.forEach((b) => {
+          serviceCounts[b.service] = (serviceCounts[b.service] || 0) + 1;
+        });
+        const mostPopular = Object.entries(serviceCounts).sort(
+          (a, b) => b[1] - a[1],
+        )[0];
+        document.getElementById("popular-service").textContent = mostPopular
+          ? mostPopular[0]
+          : "-";
+
+        // Peak booking day
+        const dayCounts = {};
+        bookings.forEach((b) => {
+          const date = new Date(b.created_at);
+          const day = date.toLocaleDateString("en-US", { weekday: "short" });
+          dayCounts[day] = (dayCounts[day] || 0) + 1;
+        });
+        const peakDay = Object.entries(dayCounts).sort(
+          (a, b) => b[1] - a[1],
+        )[0];
+        document.getElementById("peak-day").textContent = peakDay
+          ? peakDay[0]
+          : "-";
+
+        // Average booking value (from delivered bookings)
+        const deliveredBookings = bookings.filter(
+          (b) => b.status === "delivered",
+        );
+        const avgValue =
+          deliveredBookings.length > 0
+            ? Math.round(
+                deliveredBookings.reduce((sum, b) => sum + (b.price || 0), 0) /
+                  deliveredBookings.length,
+              )
+            : 0;
+        document.getElementById("avg-value").textContent =
+          `AED ${avgValue.toLocaleString()}`;
+      }
+
+      // ===== BOOKING MANAGEMENT FUNCTIONS =====
+
+      // Load bookings
+      async function loadBookings() {
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await fetch(`${API_BASE_URL}/bookings`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to load bookings: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          allBookings = data.bookings || [];
+
+          // Calculate analytics
+          calculateAnalytics(allBookings);
+          calculateBusinessInsights(allBookings);
+
+          // Draw charts
+          drawDailyBookingsChart(allBookings);
+          drawRevenueChart(allBookings);
+          drawServicePopularityChart(allBookings);
+          drawWeeklyComparisonChart(allBookings);
+
+          // Render bookings
+          renderBookings(allBookings);
+        } catch (error) {
+          console.error("Error loading bookings:", error);
+          document.getElementById("bookings-body").innerHTML =
+            '<tr><td colspan="9" class="empty">Error loading bookings</td></tr>';
+        }
+      }
+
+      // Render bookings with current filters
+      function renderBookings(bookingsToRender) {
+        const tbody = document.getElementById("bookings-body");
+        tbody.innerHTML = "";
+
+        if (bookingsToRender.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="9" class="empty">No bookings found</td></tr>';
+          return;
+        }
+
+        bookingsToRender.forEach((booking) => {
+          const date = new Date(booking.created_at).toLocaleDateString();
+          const statusBadge = `<span class="badge badge-${booking.status}">${booking.status.toUpperCase()}</span>`;
+
+          // Determine row highlighting based on status
+          let rowClass = "";
+          if (booking.status === "booked")
+            rowClass = 'style="background: #f3f4f6;"';
+          else if (booking.status === "assigned")
+            rowClass = 'style="background: #eff6ff;"';
+          else if (booking.status === "on_transit")
+            rowClass = 'style="background: #fffbeb;"';
+          else if (booking.status === "delivered")
+            rowClass = 'style="background: #ecfdf5;"';
+
+          tbody.innerHTML += `
+            <tr ${rowClass}>
+              <td><strong>#${booking.id}</strong></td>
+              <td>${booking.name}</td>
+              <td>${booking.phone}</td>
+              <td>${booking.service}</td>
+              <td>${booking.quantity}</td>
+              <td>AED ${(booking.price * booking.quantity).toLocaleString()}</td>
+              <td>${statusBadge}</td>
+              <td class="date-col">${date}</td>
+              <td>
+                ${booking.status !== "delivered" ? `<button class="action-btn" onclick="advanceBookingStatus(${booking.id}, '${booking.status}')" style="padding: 6px 12px; font-size: 12px;">⏭️ Advance</button>` : '<span style="color: #999;">✓ Complete</span>'}
+              </td>
+            </tr>`;
+        });
+      }
+
+      // Filter and search bookings
+      function filterBookings() {
+        const statusFilter = document.getElementById("statusFilter").value;
+        const searchInput = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        let filtered = allBookings;
+
+        // Apply status filter
+        if (statusFilter) {
+          filtered = filtered.filter((b) => b.status === statusFilter);
+        }
+
+        // Apply search filter
+        if (searchInput) {
+          filtered = filtered.filter(
+            (b) =>
+              b.id.toString().includes(searchInput) ||
+              b.name.toLowerCase().includes(searchInput),
+          );
+        }
+
+        renderBookings(filtered);
+      }
+
+      // Get next status in the workflow
+      function getNextStatus(currentStatus) {
+        const statusFlow = {
+          booked: "assigned",
+          assigned: "on_transit",
+          on_transit: "delivered",
+          delivered: null, // Final status
+        };
+        return statusFlow[currentStatus] || null;
+      }
+
+      // Advance booking to next status
+      async function advanceBookingStatus(bookingId, currentStatus) {
+        const nextStatus = getNextStatus(currentStatus);
+
+        if (!nextStatus) {
+          alert("❌ This booking is already delivered!");
+          return;
+        }
+
+        const statusLabels = {
+          booked: "🔖 Booked",
+          assigned: "✅ Assigned",
+          on_transit: "🚚 On Transit",
+          delivered: "✓ Delivered",
+        };
+
+        if (
+          !confirm(
+            `Move booking from ${statusLabels[currentStatus]} to ${statusLabels[nextStatus]}?`,
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await fetch(
+            `${API_BASE_URL}/bookings/${bookingId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ status: nextStatus }),
+            },
+          );
+
+          if (!response.ok) {
+            throw new Error(`Failed to update booking: ${response.statusText}`);
+          }
+
+          // Reload data
+          loadBookings();
+        } catch (error) {
+          console.error("Error updating booking:", error);
+          alert("❌ Failed to advance booking status");
+        }
+      }
+
+      // Legacy update function (kept for backward compatibility)
+      async function updateBookingStatus(bookingId, newStatus) {
+        advanceBookingStatus(bookingId, newStatus);
+      }
+
+      // Load contacts
+      async function loadContacts() {
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await fetch(`${API_BASE_URL}/contacts`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to load contacts: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          const contacts = data.contacts || [];
+
+          const tbody = document.getElementById("contacts-body");
+          tbody.innerHTML = "";
+
+          if (contacts.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="9" class="empty">No contact messages yet</td></tr>';
+            return;
+          }
+
+          contacts.forEach((contact) => {
+            const date = new Date(contact.created_at).toLocaleDateString();
+            const statusBadge = `<span class="badge badge-${contact.status}">${contact.status}</span>`;
+
+            tbody.innerHTML += `
+            <tr>
+              <td>${contact.id}</td>
+              <td>${contact.name}</td>
+              <td>${contact.email}</td>
+              <td>${contact.phone}</td>
+              <td>${contact.service}</td>
+              <td class="message">${contact.message}</td>
+              <td>${statusBadge}</td>
+              <td class="date-col">${date}</td>
+              <td>
+                <button class="action-btn" onclick="markContactResponded(${contact.id})" style="padding: 6px 12px; font-size: 12px;">✓ Responded</button>
+              </td>
+            </tr>
+          `;
+          });
+        } catch (error) {
+          console.error("Error loading contacts:", error);
+          document.getElementById("contacts-body").innerHTML =
+            '<tr><td colspan="9" class="empty">Error loading contacts</td></tr>';
+        }
+      }
+
+      // Mark contact as responded
+      async function markContactResponded(id) {
+        try {
+          const token = localStorage.getItem("access_token");
+          await fetch(`${API_BASE_URL}/contacts/${id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status: "responded" }),
+          });
+          refreshData();
+        } catch (error) {
+          alert("Error updating contact");
+        }
+      }
+
+      // Switch tabs
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+
+        document.getElementById(tab).classList.add("active");
+        event.target.classList.add("active");
+      }
+
+      // Refresh all data
+      function refreshData() {
+        checkBackend();
+        loadBookings();
+        loadContacts();
+      }
+
+      // Initialize admin panel on page load
+      async function initAdminPanel() {
+        // First check admin access
+        const hasAccess = await checkAdminAccess();
+        if (!hasAccess) {
+          return; // Redirect will happen in checkAdminAccess
+        }
+
+        // Load data
+        refreshData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        // Redraw charts on window resize
+        window.addEventListener("resize", () => {
+          if (allBookings.length > 0) {
+            drawDailyBookingsChart(allBookings);
+            drawRevenueChart(allBookings);
+            drawWeeklyComparisonChart(allBookings);
+          }
+        });
+      }
+
+      // Load data on page load
+      document.addEventListener("DOMContentLoaded", initAdminPanel);
+    </script>
+    <!-- WhatsApp Floating Button -->
+    <a
+      href="https://wa.me/971555555555"
+      target="_blank"
+      class="floating-whatsapp"
+      aria-label="Contact on WhatsApp"
+    >
+      <span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M20.52 3.48A12.07 12.07 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.18 1.6 6.01L0 24l6.18-1.62A12.07 12.07 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52zM12 22c-1.85 0-3.68-.5-5.26-1.44l-.38-.22-3.67.96.98-3.58-.25-.37A9.94 9.94 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.6c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.12-.12.28-.32.42-.48.14-.16.18-.28.28-.46.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3s.98 2.67 1.12 2.85c.14.18 1.93 2.95 4.68 4.02.65.28 1.16.45 1.56.58.66.21 1.26.18 1.73.11.53-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.18-.53-.32z"
+          />
+        </svg>
+      </span>
+      WhatsApp
+    </a>
+  </body>
+</html>

@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Smart Laundry - Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .dashboard-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .user-info {
+        text-align: right;
+      }
+
+      .user-info p {
+        margin: 5px 0;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .logout-btn {
+        background-color: #ff6b6b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      }
+
+      .logout-btn:hover {
+        background-color: #ff5252;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-container {
+          padding: 10px;
+        }
+
+        .dashboard-header {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px;
+        }
+
+        .user-info {
+          text-align: left;
+          margin-top: 15px;
+          width: 100%;
+        }
+
+        .logout-btn {
+          width: 100%;
+        }
+
+        .dashboard-header h1 {
+          font-size: 22px;
+        }
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        color: #2d3748;
+        font-size: 24px;
+        font-weight: 800;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 16px;
+      }
+
+      .profile-field {
+        margin-bottom: 15px;
+      }
+
+      .profile-field label {
+        display: block;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+
+      .profile-field input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .btn-primary {
+        flex: 1;
+        padding: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-secondary {
+        flex: 1;
+        padding: 10px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .booking-item {
+        background: white;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 5px solid #667eea;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .booking-id {
+        font-weight: 700;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .booking-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .status-booked {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+      }
+
+      .status-assigned {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+      }
+
+      .status-on_transit {
+        background-color: #fed7aa;
+        color: #92400e;
+        border: 1px solid #f97316;
+      }
+
+      .status-delivered {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #22c55e;
+      }
+
+      /* Progress Indicator Styles */
+      .delivery-progress {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+      }
+
+      .progress-step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 0;
+      }
+
+      .progress-step.completed::after {
+        background: #22c55e;
+      }
+
+      .progress-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+      }
+
+      .progress-step.active .progress-circle {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        transform: scale(1.1);
+      }
+
+      .progress-step.completed .progress-circle {
+        background: #22c55e;
+        color: white;
+        border-color: #22c55e;
+      }
+
+      .progress-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        text-align: center;
+      }
+
+      .progress-step.active .progress-label {
+        color: #667eea;
+        font-weight: 700;
+      }
+
+      .progress-step.completed .progress-label {
+        color: #22c55e;
+        font-weight: 700;
+      }
+
+      @media (max-width: 640px) {
+        .delivery-progress {
+          margin: 15px 0;
+          padding: 15px;
+        }
+
+        .progress-step {
+          flex: 0 1 auto;
+        }
+
+        .progress-step:not(:last-child)::after {
+          width: 20px;
+          left: 60%;
+        }
+
+        .progress-circle {
+          width: 32px;
+          height: 32px;
+          font-size: 14px;
+        }
+
+        .progress-label {
+          font-size: 10px;
+        }
+      }
+
+      .booking-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .booking-detail-item {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .booking-detail-label {
+        font-weight: 700;
+        color: #555;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+
+      .booking-detail-value {
+        color: #333;
+        margin-top: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .booking-detail-date {
+        color: #999;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 10px;
+      }
+
+      .empty-state p {
+        margin: 10px 0;
+      }
+
+      .btn-book {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 30px;
+        font-weight: 700;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-book:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      }
+
+      .btn-book:active {
+        transform: translateY(-1px);
+      }
+
+      .booking-item:hover {
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .booking-item {
+        transition: all 0.3s ease;
+      }
+
+      .empty-state h3 {
+        font-size: 24px;
+        margin: 0 0 10px 0;
+      }
+
+      .empty-state p {
+        font-size: 16px;
+      }
+
+      .message {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .message.error {
+        background-color: #fee;
+        color: #c33;
+        display: block;
+      }
+
+      .message.success {
+        background-color: #efe;
+        color: #3c3;
+        display: block;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 10px;
+      }
+
+      .loading p {
+        color: #667eea;
+        font-weight: 600;
+        font-size: 16px;
+        margin-top: 15px;
+      }
+
+      .spinner {
+        border: 4px solid #f0f0f0;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .empty-state h3 {
+        font-size: 28px;
+        margin: 0 0 15px 0;
+        color: #667eea;
+      }
+
+      .empty-state p {
+        font-size: 16px;
+        margin: 8px 0;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <h1>Smart Laundry</h1>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/#services">Services</a></li>
+        <li id="dashboardNav" style="display: none">
+          <a href="/dashboard.html">📊 Dashboard</a>
+        </li>
+        <li
+          id="profileDropdownNav"
+          style="display: none"
+          class="profile-dropdown"
+        >
+          <button
+            class="navbar a profile-dropdown-btn"
+            id="profileDropdownBtn"
+            onclick="toggleProfileDropdown()"
+          >
+            👤 <span id="profileDropdownName">Profile</span>
+          </button>
+          <div class="profile-dropdown-menu" id="profileDropdownMenu">
+            <div class="profile-dropdown-header">
+              <h3 id="profileDropdownTitle">Your Profile</h3>
+              <p id="profileDropdownEmail">email@example.com</p>
+            </div>
+            <div class="profile-dropdown-content">
+              <div class="profile-dropdown-item">
+                <strong>Name:</strong>
+                <span id="profileDropdownNameVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Phone:</strong>
+                <span id="profileDropdownPhoneVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Address:</strong>
+                <span id="profileDropdownAddressVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Member Since:</strong>
+                <span id="profileDropdownDateVal">-</span>
+              </div>
+            </div>
+            <div class="profile-dropdown-footer">
+              <button class="profile-logout-btn" onclick="logoutFromNav()">
+                🚪 Logout
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="dashboard-container container">
+      <div class="dashboard-header">
+        <div>
+          <h1>📊 Your Dashboard</h1>
+          <p style="color: #999; margin: 5px 0 0 0">
+            Welcome back, <strong id="userName">Loading...</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Bookings Card (Full Width) -->
+        <div class="card" style="grid-column: 1 / -1">
+          <h2>📦 Your Bookings</h2>
+          <div id="bookingsMessage" class="message"></div>
+
+          <div id="bookingsContainer">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading bookings...</p>
+            </div>
+          </div>
+
+          <a
+            href="#"
+            onclick="
+              goToNewBooking();
+              return false;
+            "
+            class="btn-book"
+            >+ New Booking</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      // Dynamic API URL - works for both local dev and production
+      const API_BASE_URL =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+          ? "http://localhost:5000/api"
+          : `${window.location.protocol}//${window.location.host}/api`;
+
+      // Check authentication
+      function checkAuth() {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          window.location.href = "/auth.html";
+          return false;
+        }
+        return true;
+      }
+
+      // Initialize dashboard
+      async function initDashboard() {
+        if (!checkAuth()) return;
+
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        document.getElementById("userName").textContent = user.name || "User";
+
+        // Debug logging
+        const token = localStorage.getItem("access_token");
+        console.log("🔐 Dashboard Init - Token exists:", !!token);
+        console.log("👤 User data:", user);
+        console.log("🔌 API Base URL:", API_BASE_URL);
+
+        // Update navbar
+        updateAuthNav();
+
+        // Load bookings
+        await loadBookings();
+      }
+
+      // Load bookings
+      async function loadBookings() {
+        try {
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            throw new Error("No authentication token found");
+          }
+
+          const response = await fetch(`${API_BASE_URL}/bookings/my-bookings`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Bookings API Error:", response.status, errorText);
+            throw new Error(
+              `API Error ${response.status}: ${response.statusText}`,
+            );
+          }
+
+          const data = await response.json();
+          const bookings = data.bookings || [];
+
+          const container = document.getElementById("bookingsContainer");
+
+          if (bookings.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <h3>📭 No Bookings Yet</h3>
+                <p>You haven't placed any laundry orders yet.</p>
+                <p style="font-size: 14px; color: #999;">Click the "+ New Booking" button below to get started!</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = bookings
+            .map((booking) => {
+              // Format dates properly
+              const createdDate = new Date(booking.created_at);
+              const createdFormatted = createdDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              const createdTime = createdDate.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+              });
+
+              // Generate progress indicator
+              const statuses = [
+                { name: "booked", label: "🔖", text: "Booked" },
+                { name: "assigned", label: "✅", text: "Assigned" },
+                { name: "on_transit", label: "🚚", text: "In Transit" },
+                { name: "delivered", label: "✓", text: "Delivered" },
+              ];
+
+              const currentStatusIndex = statuses.findIndex(
+                (s) => s.name === booking.status,
+              );
+
+              const progressHTML = `
+                <div class="delivery-progress">
+                  ${statuses
+                    .map((status, index) => {
+                      const isActive = index === currentStatusIndex;
+                      const isCompleted = index < currentStatusIndex;
+                      const icon =
+                        isCompleted && status.name !== "delivered"
+                          ? "✓"
+                          : status.name === "on_transit"
+                            ? "🚚"
+                            : status.label;
+                      return `
+                    <div class="progress-step ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}">
+                      <div class="progress-circle">${icon}</div>
+                      <div class="progress-label">${status.text}</div>
+                    </div>
+                  `;
+                    })
+                    .join("")}
+                </div>
+              `;
+
+              return `
+            <div class="booking-item">
+              <div class="booking-header">
+                <div>
+                  <div class="booking-id">📦 Booking #${booking.id}</div>
+                  <div class="booking-detail-date">Created: ${createdFormatted} at ${createdTime}</div>
+                </div>
+                <span class="booking-status status-${booking.status}">
+                  ${booking.status
+                    .replace(/_/g, " ")
+                    .split(" ")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </span>
+              </div>
+              ${progressHTML}
+              <div class="booking-details">
+                <div class="booking-detail-item">
+                  <span class="booking-detail-label">Service</span>
+                  <span class="booking-detail-value">${booking.service}</span>
+                </div>
+                <div class="booking-detail-item">
+                  <span class="booking-detail-label">Quantity</span>
+                  <span class="booking-detail-value">${booking.quantity} kg</span>
+                </div>
+                <div class="booking-detail-item">
+                  <span class="booking-detail-label">Price</span>
+                  <span class="booking-detail-value">KSh ${parseFloat(booking.price).toFixed(2)}</span>
+                </div>
+                <div class="booking-detail-item">
+                  <span class="booking-detail-label">Location</span>
+                  <span class="booking-detail-value">${booking.location}</span>
+                </div>
+                <div class="booking-detail-item">
+                  <span class="booking-detail-label">Delivery Date</span>
+                  <span class="booking-detail-value">${booking.delivery_date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+            })
+            .join("");
+        } catch (err) {
+          console.error("Bookings load error:", err);
+          const container = document.getElementById("bookingsContainer");
+          container.innerHTML = `
+            <div class="empty-state">
+              <h3>❌ Error Loading Bookings</h3>
+              <p>${err.message}</p>
+              <p style="font-size: 12px; color: #999;">Please try refreshing the page or contact support.</p>
+            </div>
+          `;
+        }
+      }
+
+      // Logout
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("user");
+          window.location.href = "/";
+        }
+      }
+
+      // Navigate to new booking
+      function goToNewBooking() {
+        window.location.href = "/#bookingForm";
+      }
+
+      // Initialize on load
+      window.addEventListener("load", initDashboard);
+    </script>
+  </body>
+</html>

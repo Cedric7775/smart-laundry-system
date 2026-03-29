@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Smart Laundry</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar container">
+      <h1>Smart Laundry</h1>
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#turnaround">Turnaround</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#coverage">Coverage</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li id="authNav">
+          <a href="/auth.html">🔐 Login</a>
+        </li>
+        <li id="dashboardNav" style="display: none">
+          <a href="/dashboard.html">📊 Dashboard</a>
+        </li>
+        <li id="profileDropdownNav" style="display: none" class="profile-dropdown">
+          <button class="navbar a profile-dropdown-btn" id="profileDropdownBtn" onclick="toggleProfileDropdown()">
+            👤 <span id="profileDropdownName">Profile</span>
+          </button>
+          <div class="profile-dropdown-menu" id="profileDropdownMenu">
+            <div class="profile-dropdown-header">
+              <h3 id="profileDropdownTitle">Your Profile</h3>
+              <p id="profileDropdownEmail">email@example.com</p>
+            </div>
+            <div class="profile-dropdown-content">
+              <div class="profile-dropdown-item">
+                <strong>Name:</strong>
+                <span id="profileDropdownNameVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Phone:</strong>
+                <span id="profileDropdownPhoneVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Address:</strong>
+                <span id="profileDropdownAddressVal">-</span>
+              </div>
+              <div class="profile-dropdown-item">
+                <strong>Member Since:</strong>
+                <span id="profileDropdownDateVal">-</span>
+              </div>
+            </div>
+            <div class="profile-dropdown-footer">
+              <button class="profile-logout-btn" onclick="logoutFromNav()">🚪 Logout</button>
+            </div>
+          </div>
+        </li>
+        <li id="logoutNav" style="display: none">
+          <a onclick="logoutFromNav()" style="cursor: pointer">🚪 Logout</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-content">
+        <h2>Laundry Made Easy</h2>
+        <div class="process-steps">
+          <div class="step">
+            <div class="step-icon">�</div>
+            <div class="step-text">Book Online</div>
+          </div>
+          <div class="step-arrow">🚀</div>
+          <div class="step">
+            <div class="step-icon">🚛</div>
+            <div class="step-text">We Pick Up</div>
+          </div>
+          <div class="step-arrow">✨</div>
+          <div class="step">
+            <div class="step-icon">🧼</div>
+            <div class="step-text">Clean</div>
+          </div>
+          <div class="step-arrow">🚀</div>
+          <div class="step">
+            <div class="step-icon">📦</div>
+            <div class="step-text">Deliver</div>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">🚀 <strong>Express Service</strong></div>
+          <div class="stat">⭐ <strong>5-Star Rated</strong></div>
+          <div class="stat">💰 <strong>Affordable Prices</strong></div>
+        </div>
+        <button onclick="openForm()">Book Now</button>
+        <br /><br />
+        <a href="https://wa.me/254718283361" target="_blank" class="whatsapp"
+          >Chat on WhatsApp</a
+        >
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="services">
+      <h2>Our Services</h2>
+      <p class="services-subtitle">Professional laundry services tailored to your needs</p>
+      <div class="service-categories">
+        <button class="category-btn active" onclick="filterServices('all')">All Services</button>
+        <button class="category-btn" onclick="filterServices('wash')">Wash & Clean</button>
+        <button class="category-btn" onclick="filterServices('specialty')">Specialty Care</button>
+        <button class="category-btn" onclick="filterServices('express')">Express</button>
+      </div>
+      <div class="cards">
+        <div class="card service-card" data-category="wash">
+          <div class="service-icon">🧺</div>
+          <h3>Wash & Fold</h3>
+          <p>Professional washing and folding for everyday clothes</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 150/kg</div>
+            <div class="service-time">24-48 hours</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Wash & Fold')">Book Now</button>
+        </div>
+
+        <div class="card service-card" data-category="specialty">
+          <div class="service-icon">👕</div>
+          <h3>Dry Cleaning</h3>
+          <p>Chemical cleaning for delicate fabrics and formal wear</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 300/item</div>
+            <div class="service-time">48-72 hours</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Dry Cleaning')">Book Now</button>
+        </div>
+
+        <div class="card service-card" data-category="wash">
+          <div class="service-icon">👔</div>
+          <h3>Ironing & Pressing</h3>
+          <p>Professional pressing service for crisp, wrinkle-free clothes</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 50/item</div>
+            <div class="service-time">Same day</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Ironing & Pressing')">Book Now</button>
+        </div>
+
+        <div class="card service-card" data-category="specialty">
+          <div class="service-icon">🛏️</div>
+          <h3>Bedding & Duvet Cleaning</h3>
+          <p>Deep cleaning for mattresses, pillows, and bed linens</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 500</div>
+            <div class="service-time">3-5 days</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Bedding & Duvet Cleaning')">Book Now</button>
+        </div>
+
+        <div class="card service-card" data-category="specialty">
+          <div class="service-icon">👟</div>
+          <h3>Shoe Cleaning</h3>
+          <p>Professional shoe cleaning and restoration services</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 200/pair</div>
+            <div class="service-time">24-48 hours</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Shoe Cleaning')">Book Now</button>
+        </div>
+
+        <div class="card service-card" data-category="specialty">
+          <div class="service-icon">🧥</div>
+          <h3>Jacket & Heavy Clothes</h3>
+          <p>Specialized cleaning for coats, jackets, and heavy garments</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 400/item</div>
+            <div class="service-time">48-72 hours</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Jacket & Heavy Clothes Cleaning')">Book Now</button>
+        </div>
+
+        <div class="card service-card express-card" data-category="express">
+          <div class="service-icon">🚀</div>
+          <h3>Express Same-Day Service</h3>
+          <p>Urgent laundry service with same-day pickup and delivery</p>
+          <div class="service-details">
+            <div class="service-price">+20% surcharge</div>
+            <div class="service-time">Same day</div>
+          </div>
+          <button class="service-btn express-btn" onclick="selectService('Express Same-Day Service')">Book Express</button>
+        </div>
+
+        <div class="card service-card" data-category="wash">
+          <div class="service-icon">👚</div>
+          <h3>Stain Removal</h3>
+          <p>Advanced stain treatment for tough marks and spills</p>
+          <div class="service-details">
+            <div class="service-price">From KSh 100/item</div>
+            <div class="service-time">Additional service</div>
+          </div>
+          <button class="service-btn" onclick="selectService('Stain Removal')">Book Now</button>
+        </div>
+      </div>
+
+      <div class="services-cta">
+        <h3>Need a Custom Service?</h3>
+        <p>Contact us for specialized cleaning requirements</p>
+        <button onclick="openForm()" class="cta-btn">Get Custom Quote</button>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" class="how">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step-card" data-step="book">
+          <div class="step-icon">📱</div>
+          <h3>Book Online or via WhatsApp</h3>
+          <p>
+            Choose the easiest way to order: just click or message us directly.
+          </p>
+          <div class="step-extra">
+            Instant confirmation, tracking, and support with the same chat
+            thread. Skip calls and manage status directly in-app. Tap again to
+            hide.
+          </div>
+        </div>
+        <div class="step-card" data-step="pickup">
+          <div class="step-icon">🚚</div>
+          <h3>We Pick Up at Your Location</h3>
+          <p>
+            Our drivers arrive on schedule and collect your laundry with care.
+          </p>
+          <div class="step-extra">
+            Real-time driver ETA, contactless pickup option, and safe handling
+            protocols.
+          </div>
+        </div>
+        <div class="step-card" data-step="cleaning">
+          <div class="step-icon">🧼</div>
+          <h3>Professional Cleaning & Care</h3>
+          <p>
+            Premium detergents, gentle handling, and expert fabric treatment.
+          </p>
+          <div class="step-extra">
+            Stain treatment, fabric-safe cycles, and eco-friendly cleaners for
+            the best results every time.
+          </div>
+        </div>
+        <div class="step-card" data-step="quality">
+          <div class="step-icon">📦</div>
+          <h3>Quality Check & Packaging</h3>
+          <p>
+            Final inspection ensures everything is fresh, clean, and neatly
+            packed.
+          </p>
+          <div class="step-extra">
+            Before delivery we inspect for spots, loose buttons, and fold each
+            item with care in sealed packaging.
+          </div>
+        </div>
+        <div class="step-card" data-step="delivery">
+          <div class="step-icon">🏠</div>
+          <h3>Delivered Fresh to Your Door</h3>
+          <p>
+            Fast delivery ensures your laundry returns promptly to your
+            doorstep.
+          </p>
+          <div class="step-extra">
+            Choose preferred drop-off window, receive delivery alerts, and enjoy
+            contact-free handoff.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="pricing">
+      <h2>Pricing Guide</h2>
+      <p class="pricing-note">
+        Click each category to expand pricing details. Prices may vary for
+        stains or special fabrics.
+      </p>
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <span>👕 Basic Clothing</span>
+            <span class="toggle-label">Show more</span>
+          </div>
+          <div class="pricing-details">
+            <ul>
+              <li>👕 T-Shirts – KES 50</li>
+              <li>👔 Shirts – KES 70</li>
+              <li>👖 Jeans – KES 100</li>
+              <li>🩳 Shorts – KES 50</li>
+              <li>🧣 Scarves – KES 40</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pricing-card popular">
+          <div class="pricing-header">
+            <span>🧥 Heavy Clothing / Special Care</span>
+            <span class="toggle-label">Show more</span>
+          </div>
+          <div class="pricing-details">
+            <ul>
+              <li>🧥 Jackets / Coats – KES 250</li>
+              <li>👗 Dresses – KES 150</li>
+              <li>🧵 Suits – KES 400</li>
+              <li>🧦 Socks (per pair) – KES 20</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <span>🏠 Household Items</span>
+            <span class="toggle-label">Show more</span>
+          </div>
+          <div class="pricing-details">
+            <ul>
+              <li>🛏️ Duvet / Blanket – KES 500</li>
+              <li>🛋️ Curtains – KES 400</li>
+              <li>🛏️ Bedsheets – KES 200</li>
+              <li>🪟 Cushion Covers – KES 100</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <span>⚡ Special Services / Upsells</span>
+            <span class="toggle-label">Show more</span>
+          </div>
+          <div class="pricing-details">
+            <ul>
+              <li>🧺 Per Laundry Basket – KES 800</li>
+              <li>⚡ Express Same-Day Service – +KES 200</li>
+              <li>👟 Shoe Cleaning – KES 150 per pair</li>
+              <li>🧤 Gloves / Small Items Bundle – KES 100</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pricing-card highlight">
+          <div class="pricing-header">
+            <span>📦 Packages / Bundles</span>
+            <span class="toggle-label">Show more</span>
+          </div>
+          <div class="pricing-details">
+            <div class="bundle-item">
+              <div>
+                <strong>Mini Pack – 5 items – KES 250</strong>
+                <p>Perfect for quick loads</p>
+              </div>
+              <button class="select-btn" onclick="selectBundle('mini')">
+                Select
+              </button>
+            </div>
+            <div class="bundle-item">
+              <div>
+                <strong>Standard Pack – 10 items – KES 450</strong>
+                <p>Most popular choice</p>
+              </div>
+              <button class="select-btn" onclick="selectBundle('standard')">
+                Select
+              </button>
+            </div>
+            <div class="bundle-item">
+              <div>
+                <strong>Family Pack – 20 items – KES 800</strong>
+                <p>Best value for families</p>
+              </div>
+              <button class="select-btn" onclick="selectBundle('family')">
+                Select
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pricing-tip">
+        🌿 Deep Cleaning add-on, Eco-Friendly upgrade and Gift Packages
+        available.
+      </div>
+    </section>
+
+    <!-- TURNAROUND -->
+    <section id="turnaround" class="turnaround">
+      <h2>Turnaround Time</h2>
+      <div class="turnaround-grid">
+        <div class="turnaround-card">
+          <div class="turnaround-icon">⏱️</div>
+          <h3>Standard</h3>
+          <p>24–48 hours</p>
+          <small>Perfect for regular laundry needs</small>
+        </div>
+        <div class="turnaround-card express">
+          <div class="turnaround-icon">⚡</div>
+          <h3>Express</h3>
+          <p>Same day</p>
+          <small>Available before 2 PM for same-day pickup</small>
+        </div>
+        <div class="turnaround-card premium">
+          <div class="turnaround-icon">👑</div>
+          <h3>Premium</h3>
+          <p>2–4 hours</p>
+          <small>Priority service with dedicated attendant</small>
+        </div>
+      </div>
+      <p class="turnaround-note">
+        Quick, predictable delivery keeps your wardrobe ready when you need it.
+      </p>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials" class="testimonials">
+      <h2>What Our Customers Say</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <img
+            src="https://via.placeholder.com/80x80?text=S"
+            alt="Sarah"
+            class="testimonial-photo"
+          />
+          <div class="stars">★★★★★</div>
+          <p>
+            "Amazing service! My clothes came back smelling fresh and perfectly
+            folded. Will definitely use again."
+          </p>
+          <cite>- Sarah K., Eldoret</cite>
+        </div>
+        <div class="testimonial-card">
+          <img
+            src="https://via.placeholder.com/80x80?text=J"
+            alt="John"
+            class="testimonial-photo"
+          />
+          <div class="stars">★★★★★</div>
+          <p>
+            "Express service saved my day. Got my suit back in time for the
+            meeting. Highly recommend!"
+          </p>
+          <cite>- John M., Pioneer Annex</cite>
+        </div>
+        <div class="testimonial-card">
+          <img
+            src="https://via.placeholder.com/80x80?text=E"
+            alt="Emily"
+            class="testimonial-photo"
+          />
+          <div class="stars">★★★★★</div>
+          <p>
+            "Affordable and reliable. The duvet cleaning was spotless. Great for
+            busy students like me."
+          </p>
+          <cite>- Emily R., Elgon View</cite>
+        </div>
+        <div class="testimonial-card">
+          <img
+            src="https://via.placeholder.com/80x80?text=D"
+            alt="David"
+            class="testimonial-photo"
+          />
+          <div class="stars">★★★★★</div>
+          <p>
+            "Premium service is worth every penny. My suits look brand new and
+            the attention to detail is exceptional."
+          </p>
+          <cite>- David W., Westlands</cite>
+        </div>
+      </div>
+    </section>
+
+    <!-- COVERAGE -->
+    <section id="coverage" class="coverage">
+      <div class="coverage-header">
+        <h2>📦 Free Delivery Areas</h2>
+        <span class="badge">FREE DELIVERY 🚚</span>
+      </div>
+      <p class="coverage-intro">
+        We deliver within Eldoret and nearby neighborhoods. Select a location
+        for instant pickup availability. <strong>Zero delivery charges</strong> on all orders in our service areas.
+      </p>
+
+      <div class="coverage-grid">
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Pioneer Annex
+        </div>
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Elgon View
+        </div>
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Milimani Estate
+        </div>
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Kapsoya Estate
+        </div>
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Rupa / West Indies
+        </div>
+        <div class="coverage-card">
+          <span class="coverage-icon">📍</span>Town Centre / CBD
+        </div>
+      </div>
+
+      <div class="coverage-map">
+        <div class="map-icon">🗺️</div>
+        <iframe
+          title="Eldoret delivery area map"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.197463489101!2d35.28709331503094!3d0.5162230996785183!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x178a1e30a6826cdb%3A0x90c7a07a7a2465f7!2sEldoret%2C%20Kenya!5e0!3m2!1sen!2sus!4v1700900000000"
+          width="100%"
+          height="280"
+          style="border: 0; border-radius: 10px"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <p>
+          Map centered on Eldoret with key delivery neighborhoods highlighted.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+      <h2>Contact Us</h2>
+      <p class="contact-note">
+        Need help? Reach out to us through any channel. We're available Mon-Sat, 7am-8pm.
+      </p>
+      <div class="contact-grid">
+        <a href="tel:0718283361" class="contact-card phone-card">
+          <div class="contact-icon">📞</div>
+          <div>
+            <strong>Call / WhatsApp</strong>
+            <p>0718283361</p>
+          </div>
+        </a>
+        <a
+          href="mailto:smartlaundry98@gmail.com"
+          class="contact-card email-card"
+        >
+          <div class="contact-icon">✉️</div>
+          <div>
+            <strong>Email</strong>
+            <p>smartlaundry98@gmail.com</p>
+          </div>
+        </a>
+        <div class="contact-card address-card">
+          <div class="contact-icon">📍</div>
+          <div>
+            <strong>Address</strong>
+            <p>Pioneer Annex, Eldoret</p>
+          </div>
+        </div>
+        <div class="contact-card hours-card">
+          <div class="contact-icon">⏰</div>
+          <div>
+            <strong>Hours</strong>
+            <p>Mon-Sat 7am-8pm</p>
+          </div>
+        </div>
+      </div>
+
+      <form
+        id="contactForm"
+        class="contact-form"
+        onsubmit="
+          event.preventDefault();
+          sendMessage();
+        "
+      >
+        <h3>Send a Message</h3>
+        <div class="form-row">
+          <input type="text" id="contact-name" placeholder="Name" required />
+          <input type="tel" id="contact-phone" placeholder="Phone" required />
+        </div>
+        <div class="form-row">
+          <input type="email" id="contact-email" placeholder="Email" required />
+          <select id="contact-service" required>
+            <option value="">Service Needed</option>
+            <option value="wash-fold">Wash & Fold</option>
+            <option value="duvet">Duvet</option>
+            <option value="express">Express</option>
+            <option value="dry-cleaning">Dry Cleaning</option>
+          </select>
+        </div>
+        <textarea
+          id="contact-message"
+          rows="3"
+          placeholder="Message"
+        ></textarea>
+        <div class="form-buttons">
+          <button
+            type="button"
+            onclick="location.href = 'tel:0718283361'"
+            class="cta-btn"
+          >
+            📞 Call Now
+          </button>
+          <button
+            type="button"
+            onclick="location.href = 'https://wa.me/254718283361'"
+            class="cta-btn whatsapp-btn"
+          >
+            💬 WhatsApp Us
+          </button>
+          <button type="submit" class="cta-btn submit-btn">
+            📩 Send Message
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- FLOATING WHATSAPP -->
+    <a
+      href="https://wa.me/254718283361"
+      class="floating-whatsapp"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Chat on WhatsApp"
+    >
+      <span>💬</span> WhatsApp us now
+    </a>
+
+    <!-- BOOKING MODAL -->
+    <div id="modal" class="modal" style="display: none;">
+      <form id="bookingForm" class="modal-content">
+        <div class="booking-header">
+          <h3>🛒 Book Laundry Service</h3>
+          <button type="button" class="modal-close" onclick="closeForm()">&times;</button>
+        </div>
+
+        <!-- SECTION 1: PERSONAL INFO -->
+        <div class="form-section">
+          <h4 class="section-title">👤 Your Information</h4>
+          <div>
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="e.g., Ahmad Al-Mansouri" required />
+            <span class="error-message" id="error-name"></span>
+          </div>
+          <div>
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="e.g., +971 50 123 4567" required />
+            <span class="error-message" id="error-phone"></span>
+          </div>
+        </div>
+
+        <!-- SECTION 2: SERVICE SELECTION -->
+        <div class="form-section">
+          <h4 class="section-title">🧺 Service Selection</h4>
+          <div>
+            <label for="service">Service Type</label>
+            <select id="service" required onchange="updatePrice()">
+              <option value="">-- Select a service --</option>
+              <option value="Express Wash">Express Wash - AED 1,100/kg</option>
+              <option value="Premium Care">Premium Care - AED 800/kg</option>
+              <option value="Dry Cleaning">Dry Cleaning - AED 100/kg</option>
+              <option value="Ironing & Folding">Ironing & Folding - AED 50/kg</option>
+              <option value="Bed Linen">Bed Linen - AED 75/kg</option>
+              <option value="Carpet Cleaning">Carpet Cleaning - AED 1,200/kg</option>
+              <option value="Bulk Service">Bulk Service - AED 50/kg</option>
+              <option value="Wedding Collection">Wedding Collection - AED 1,500/kg</option>
+            </select>
+            <span class="error-message" id="error-service"></span>
+          </div>
+          <div>
+            <label for="quantity">Quantity (kg)</label>
+            <input type="number" id="quantity" placeholder="Enter quantity" min="1" max="100" value="1" required onchange="updatePrice()" oninput="updatePrice()" />
+            <span class="error-message" id="error-quantity"></span>
+          </div>
+        </div>
+
+        <!-- SECTION 3: DELIVERY DETAILS -->
+        <div class="form-section">
+          <h4 class="section-title">📍 Delivery Details</h4>
+          <div>
+            <label for="location">Delivery Location</label>
+            <input type="text" id="location" placeholder="e.g., Dubai Marina, Apartment 1401" required />
+            <span class="error-message" id="error-location"></span>
+          </div>
+          <div>
+            <label for="delivery_date">Delivery Date</label>
+            <input type="date" id="delivery_date" required onchange="updatePrice()"/>
+            <span class="error-message" id="error-delivery_date"></span>
+          </div>
+        </div>
+
+        <!-- PRICE DISPLAY -->
+        <div class="price-summary">
+          <div class="price-row">
+            <span>Service Price</span>
+            <span id="servicePrice">AED 50.00</span>
+          </div>
+          <div class="price-row">
+            <span>Quantity</span>
+            <span id="quantityDisplay">1 kg</span>
+          </div>
+          <div class="price-row-total">
+            <span>Total Price</span>
+            <span id="totalPrice">AED 50.00</span>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" onclick="reviewBooking()" class="btn-primary">📋 Review Booking</button>
+          <button type="button" onclick="closeForm()" class="btn-secondary">✕ Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- CONFIRMATION MODAL -->
+    <div id="confirmationModal" class="modal" style="display: none;">
+      <div class="modal-content confirmation-content">
+        <div class="booking-header">
+          <h3>✅ Confirm Your Booking</h3>
+          <button type="button" class="modal-close" onclick="closeConfirmation()">&times;</button>
+        </div>
+
+        <div class="confirmation-summary">
+          <div class="summary-item">
+            <span class="label">Service</span>
+            <span class="value" id="confirmService">-</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Quantity</span>
+            <span class="value" id="confirmQuantity">-</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Location</span>
+            <span class="value" id="confirmLocation">-</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Delivery Date</span>
+            <span class="value" id="confirmDate">-</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-item-total">
+            <span class="label-total">TOTAL PRICE</span>
+            <span class="value-total" id="confirmTotal">AED 0.00</span>
+          </div>
+        </div>
+
+        <div class="confirmation-info">
+          <p>✓ We'll contact you at <strong id="confirmPhone">-</strong></p>
+          <p>✓ Free pickup & delivery</p>
+          <p>✓ Track your booking in real-time</p>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" onclick="submitBooking()" class="btn-primary">✓ Confirm & Book</button>
+          <button type="button" onclick="closeConfirmation()" class="btn-secondary">← Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div id="successModal" class="modal" style="display: none;">
+      <div class="modal-content success-content">
+        <div class="success-icon">🎉</div>
+        <h3>Booking Confirmed!</h3>
+        <p class="success-subtitle">Your laundry service is booked</p>
+        
+        <div class="success-details">
+          <div class="detail-item">
+            <span class="detail-label">Booking ID</span>
+            <span class="detail-value" id="successBookingId">#12345</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Service</span>
+            <span class="detail-value" id="successService">-</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total Price</span>
+            <span class="detail-value-price" id="successPrice">AED 0.00</span>
+          </div>
+        </div>
+
+        <div class="success-message">
+          <p>✓ We'll contact you at the provided phone number</p>
+          <p>✓ Pickup is scheduled for tomorrow</p>
+          <p>✓ Track your booking in your dashboard</p>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" onclick="goToDashboard()" class="btn-primary">📊 View My Bookings</button>
+          <button type="button" onclick="closeSuccess()" class="btn-secondary">✓ Done</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
