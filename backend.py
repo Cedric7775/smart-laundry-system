@@ -1,3 +1,34 @@
+
+# ===============================
+# IMPORTS AND FLASK APP INIT (ABSOLUTE TOP)
+# ===============================
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+import sqlite3
+import json
+from datetime import datetime, timedelta
+import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+
+# Get the directory where this script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
+app.secret_key = "your_secret_key"
+
+# CORS Configuration - Allow frontend access in production
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["*"],  # In production, replace with specific domain
+        "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 # ===============================
 # TEMPORARY ADMIN CREATION ROUTE
 # ===============================
@@ -23,7 +54,6 @@ def create_admin():
         return "Admin already exists"
 
     # Hash the password before storing
-    from werkzeug.security import generate_password_hash
     hashed_password = generate_password_hash(admin_password)
 
     # Insert admin user using parameterized query
@@ -34,32 +64,6 @@ def create_admin():
     conn.commit()
     conn.close()
     return "Admin account created successfully!"
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
-import sqlite3
-import json
-from datetime import datetime, timedelta
-import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
-
-# Get the directory where this script is located
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
-
-# CORS Configuration - Allow frontend access in production
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ["*"],  # In production, replace with specific domain
-        "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
-    }
-})
 
 # JWT Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
@@ -82,91 +86,109 @@ def init_db():
     
     # --- MIGRATION: Ensure 'role' column exists in users table ---
     # This block checks for the 'role' column and if missing, safely rebuilds the table with the correct schema.
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT UNIQUE,
-            phone TEXT,
-            password TEXT,
-            role TEXT DEFAULT 'user'
-        )
-    ''')
-    c.execute("PRAGMA table_info(users)")
-    columns = [row[1] for row in c.fetchall()]
-    if 'role' not in columns:
-        print("[MIGRATION] Migrating users table to include role column...")
-        # 1. Create new table with correct schema
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS users_new (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                email TEXT UNIQUE,
-                phone TEXT,
-                password TEXT,
-                role TEXT DEFAULT 'user'
-            )
-        ''')
-        # 2. Copy data from old table, set role to 'user' for all
-        c.execute('''
-            INSERT INTO users_new (id, name, email, phone, password, role)
-            SELECT id, name, email, phone, password, 'user' FROM users
-        ''')
-        # 3. Drop old users table
-        c.execute('DROP TABLE users')
-        # 4. Rename new table to users
-        c.execute('ALTER TABLE users_new RENAME TO users')
-        print("[MIGRATION] Users table rebuilt with role column.")
-    
-    # Services table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS services (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
-            description TEXT,
-            price_per_item REAL NOT NULL,
-            turnaround_days INTEGER DEFAULT 1,
-            is_active INTEGER DEFAULT 1,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Addresses table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS addresses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            label TEXT,
-            address TEXT NOT NULL,
-            phone TEXT,
-            is_default INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-    
-    # Bookings table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS bookings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            name TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            location TEXT NOT NULL,
-            service TEXT NOT NULL,
-            quantity INTEGER,
-            price REAL,
-            delivery_date TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-    
-    # Order Status Logs table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS order_status_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        try:
+            conn = get_db_connection()
+            c = conn.cursor()
+            # Create users table if it does not exist (safe, non-destructive)
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    email TEXT UNIQUE,
+                    phone TEXT,
+                    password TEXT,
+                    role TEXT DEFAULT 'user'
+                )
+            ''')
+            # Create other tables if not exist
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS services (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE NOT NULL,
+                    description TEXT,
+                    price_per_item REAL NOT NULL,
+                    turnaround_days INTEGER DEFAULT 1,
+                    is_active INTEGER DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS addresses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    label TEXT,
+                    address TEXT NOT NULL,
+                    phone TEXT,
+                    is_default INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            ''')
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS bookings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    name TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    location TEXT NOT NULL,
+                    service TEXT NOT NULL,
+                    quantity INTEGER,
+                    price REAL,
+                    delivery_date TEXT,
+                    status TEXT DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            ''')
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS order_status_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    booking_id INTEGER NOT NULL,
+                    status TEXT NOT NULL,
+                    notes TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (booking_id) REFERENCES bookings(id)
+                )
+            ''')
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS contacts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    service TEXT NOT NULL,
+                    message TEXT,
+                    status TEXT DEFAULT 'new',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            conn.commit()
+            try:
+                conn = get_db_connection()
+                c = conn.cursor()
+                # Create users table with clean schema (no duplicates)
+                c.execute('''
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        email TEXT UNIQUE NOT NULL,
+                        phone TEXT,
+                        address TEXT,
+                        password TEXT NOT NULL,
+                        role TEXT DEFAULT 'customer',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                # Safe migration: add 'role' column if missing
+                try:
+                    c.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'customer'")
+                except Exception:
+                    pass
+                conn.commit()
+                conn.close()
+                print("Database initialized")
+            except Exception as e:
+                print("Database connection error:", e)
             booking_id INTEGER NOT NULL,
             status TEXT NOT NULL,
             notes TEXT,
